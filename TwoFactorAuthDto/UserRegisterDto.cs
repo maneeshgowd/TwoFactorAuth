@@ -1,13 +1,13 @@
 using TwoFactorAuth.DataModels;
 namespace TwoFactorAuth.TwoFactorAuthDto;
-public record UserRegisterDto
-{
-  public string FirstName = string.Empty;
-  public string LastName = string.Empty;
-  public string Email = string.Empty;
-  public string PhoneNumber = string.Empty;
-  public DateOnly Dob;
-  public string Password = string.Empty;
-  public Gender Gender;
-};
+public record class UserRegisterDto
+(
+    string FirstName,
+    string LastName,
+    string Email,
+    string PhoneNumber,
+    DateOnly Dob,
+    string Password,
+    Gender Gender
+);
 

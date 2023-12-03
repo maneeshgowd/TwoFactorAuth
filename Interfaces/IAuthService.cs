@@ -4,6 +4,6 @@ namespace TwoFactorAuth.Interfaces;
 
 public interface IAuthService
 {
-    Task Login(UserLoginDto userLoginData);
-    Task Register(UserRegisterDto userRegisterData);
+    Task<string> Login(UserLoginDto userLoginData);
+    Task<string> Register(UserRegisterDto userRegisterData);
 }
