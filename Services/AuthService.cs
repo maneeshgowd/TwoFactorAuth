@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using TwoFactorAuth.DataModels;
 using TwoFactorAuth.DBContext;
 using TwoFactorAuth.Interfaces;
@@ -39,33 +40,28 @@ public class AuthService : IAuthService
         if (user is not null)
             throw new Exception("User with the given email already exists.");
 
-        var newUser = _autoMapper.Map<RegisterModel>(userRegisterData);
+        await _emailService.VerifyEmail(
+            string.Concat(userRegisterData.FirstName, userRegisterData.LastName),
+            userRegisterData.Email);
 
-        _jwtService.CreatePasswordHash(userRegisterData.Password, out byte[] passwordHash, out byte[] passwordSalt);
-        newUser.PasswordHash = passwordHash;
-        newUser.PasswordSalt = passwordSalt;
-
-
-        await _dataContext.AddAsync(newUser);
-        await _dataContext.SaveChangesAsync();
+        await StoreUserData(userRegisterData);
 
         return _jwtService.IssueJwtToken(userRegisterData);
     }
 
-    public async Task<string> VerifyOtp(int otp)
+    private async Task StoreUserData(UserRegisterDto userData)
     {
-        var generatedOtp = await _dataContext.UsersOtp.FindAsync(otp).ConfigureAwait(false);
+        var newUser = _autoMapper.Map<RegisterModel>(userData);
+        var otpModels = await _dataContext.UsersOtp.Where(user => user.UserEmail == userData.Email)
+            .ToListAsync();
 
-        if (generatedOtp == null)
-            throw new Exception("Something went wrong");
+        _jwtService.CreatePasswordHash(userData.Password, out byte[] passwordHash, out byte[] passwordSalt);
+        newUser.PasswordHash = passwordHash;
+        newUser.PasswordSalt = passwordSalt;
+        newUser.OtpModels = otpModels;
 
-        if (generatedOtp.Otp != otp)
-            throw new Exception("Invalid otp");
-
-        if (generatedOtp.TimeStamp > DateTime.UtcNow.AddMinutes(-5) || generatedOtp.TimeStamp < DateTime.UtcNow.AddMinutes(-5))
-            throw new Exception("Invalid otp");
-
-        return "success";
+        await _dataContext.AddAsync(newUser);
+        await _dataContext.SaveChangesAsync();
     }
 
     private async Task<RegisterModel> UserExists(string email)

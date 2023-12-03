@@ -12,7 +12,7 @@ using TwoFactorAuth.DBContext;
 namespace TwoFactorAuth.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231202124657_Added otp model")]
+    [Migration("20231203115014_Added otp model")]
     partial class Addedotpmodel
     {
         /// <inheritdoc />

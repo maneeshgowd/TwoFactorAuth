@@ -54,30 +54,34 @@ public class AuthController
             }
         });
 
-        //app.MapGet("api/auth/verify/email/{name}", async (string? name, IAuthService service, HttpContext context) =>
-        //{
-        //    try
-        //    {
-        //        await service.VerifyEmail(name).ConfigureAwait(false);
-        //        return Results.Ok();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Results.BadRequest(ex.Message);
-        //    }
-        //});
+        app.MapGet("api/auth/verify/email",
+            async ([FromQuery] string name, [FromQuery] string email,
+            IEmailService service, HttpContext context) =>
+        {
+            try
+            {
+                await service.VerifyEmail(name, email).ConfigureAwait(false);
 
-        //app.MapPost("api/auth/verify/otp", async ([FromBody] int otp, IAuthService service, HttpContext context) =>
-        //{
-        //    try
-        //    {
-        //        var isOtpVerified = await service.VerifyOtp(otp).ConfigureAwait(false);
-        //        return Results.Ok(isOtpVerified);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Results.BadRequest(ex.Message);
-        //    }
-        //});
+                return Results.Ok();
+            }
+            catch (Exception ex)
+            {
+                return Results.BadRequest(ex.Message);
+            }
+        });
+
+        app.MapPost("api/auth/verify/otp", async ([FromBody] OtpDto userOtp, IEmailService service, HttpContext context) =>
+        {
+            try
+            {
+                await service.VerifyOtp(userOtp.Otp).ConfigureAwait(false);
+
+                return Results.Ok(new { StatusCode = 200, Message = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return Results.BadRequest(ex.Message);
+            }
+        });
     }
 }

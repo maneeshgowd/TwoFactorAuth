@@ -2,6 +2,7 @@
 {
     public interface IEmailService
     {
-        Task<string> VerifyEmail(string name, string email);
+        Task VerifyEmail(string name, string email);
+        Task VerifyOtp(int otp);
     }
 }
